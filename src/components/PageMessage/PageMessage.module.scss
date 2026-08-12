@@ -4,27 +4,34 @@
 .message {
   display: flex;
   width: 100%;
-  min-height: 420px;
+  max-width: 560px;
+  margin: 24px auto 0;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  padding: 32px 16px;
+  padding: 0 16px;
   text-align: center;
+
+  @include on-tablet {
+    margin-top: 32px;
+  }
 }
 
 .image {
   display: block;
-  width: 240px;
-  max-width: 100%;
-  margin-bottom: 32px;
+  width: min(100%, 220px);
+  max-height: 180px;
+  margin-bottom: 24px;
   object-fit: contain;
 
   @include on-tablet {
-    width: 320px;
+    width: min(100%, 280px);
+    max-height: 220px;
   }
 
   @include on-desktop {
-    width: 420px;
+    width: min(100%, 320px);
+    max-height: 240px;
   }
 }
 
