@@ -1,25 +1,30 @@
 <!doctype html>
 <html data-theme="light" lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Vite + React + TS</title>
-    <script>
-      (function () {
-        const savedTheme = localStorage.getItem('theme');
-        const systemPrefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+<head>
+  <meta charset="UTF-8" />
+  <link rel="icon" type="image/svg+xml" href="/react_phone-catalog/favicon.svg" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Nice Gadgets</title>
 
-        if (savedTheme === 'dark' || (!savedTheme && systemPrefersDark)) {
-          document.documentElement.setAttribute('data-theme', 'dark');
-        } else {
-          document.documentElement.setAttribute('data-theme', 'light');
-        }
-      })();
-    </script>
-    <script type="module" crossorigin src="/react_phone-catalog/assets/index-D9NSF80B.js"></script>
-    <link rel="stylesheet" crossorigin href="/react_phone-catalog/assets/index-IbsOEbRB.css">
-  </head>
-  <body>
-    <div id="root" class="root"></div>
-  </body>
+  <script>
+    (function () {
+      const savedTheme = localStorage.getItem('theme');
+      const systemPrefersDark = window.matchMedia(
+        '(prefers-color-scheme: dark)',
+      ).matches;
+
+      if (savedTheme === 'dark' || (!savedTheme && systemPrefersDark)) {
+        document.documentElement.setAttribute('data-theme', 'dark');
+      } else {
+        document.documentElement.setAttribute('data-theme', 'light');
+      }
+    })();
+  </script>
+  <script type="module" crossorigin src="/react_phone-catalog/assets/index-POtxOsnu.js"></script>
+  <link rel="stylesheet" crossorigin href="/react_phone-catalog/assets/index-CinuIwmo.css">
+</head>
+
+<body>
+<div id="root" class="root"></div>
+</body>
 </html>
