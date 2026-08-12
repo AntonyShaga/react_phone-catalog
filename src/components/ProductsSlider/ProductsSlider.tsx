@@ -12,6 +12,7 @@ type Props = {
   title: string;
   products: ProductFromServer[];
   isLoading?: boolean;
+  isBrandNewSection?: boolean;
 };
 
 const GAP = 16;
@@ -34,6 +35,7 @@ export const ProductsSlider = ({
   title,
   products,
   isLoading = false,
+  isBrandNewSection = false,
 }: Props) => {
   const t = useTranslation();
   const screenType = useScreenType();
@@ -111,7 +113,7 @@ export const ProductsSlider = ({
           visibility: isVisible ? 'visible' : 'hidden',
         }}
       >
-        <ProductCard product={product} />
+        <ProductCard product={product} isBrandNew={isBrandNewSection} />
       </div>
     );
   });

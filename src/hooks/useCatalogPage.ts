@@ -2,7 +2,7 @@ import { useEffect, useMemo } from 'react';
 import { useSearchParams } from 'react-router-dom';
 
 import { useProducts } from './useProducts';
-import type { ProductCategory } from '../types/product';
+import type { ProductCategory, ProductFromServer } from '../types/product';
 
 export const SORT_OPTION_VALUES = ['age', 'name', 'price'] as const;
 export const PER_PAGE_OPTION_VALUES = ['4', '8', '16', 'all'] as const;
@@ -45,6 +45,13 @@ const getValidPage = (value: string | null): number => {
   return page;
 };
 
+const getProductVisiblePrice = (
+  product: ProductFromServer,
+  latestProductYear: number,
+) => {
+  return product.year === latestProductYear ? product.fullPrice : product.price;
+};
+
 export const useCatalogPage = (category: ProductCategory) => {
   const [searchParams, setSearchParams] = useSearchParams();
   const { products, isLoading, hasError } = useProducts();
@@ -57,6 +64,14 @@ export const useCatalogPage = (category: ProductCategory) => {
   const categoryProducts = useMemo(() => {
     return products.filter(product => product.category === category);
   }, [products, category]);
+
+  const latestProductYear = useMemo(() => {
+    if (categoryProducts.length === 0) {
+      return 0;
+    }
+
+    return Math.max(...categoryProducts.map(product => product.year));
+  }, [categoryProducts]);
 
   const searchedProducts = useMemo(() => {
     if (!query) {
@@ -84,15 +99,19 @@ export const useCatalogPage = (category: ProductCategory) => {
         case 'name':
           return productA.name.localeCompare(productB.name);
 
-        case 'price':
-          return productA.price - productB.price;
+        case 'price': {
+          const priceA = getProductVisiblePrice(productA, latestProductYear);
+          const priceB = getProductVisiblePrice(productB, latestProductYear);
+
+          return priceA - priceB;
+        }
 
         case 'age':
         default:
           return productB.year - productA.year;
       }
     });
-  }, [searchedProducts, sortBy]);
+  }, [searchedProducts, sortBy, latestProductYear]);
 
   const itemsPerPage =
     perPage === 'all' ? sortedProducts.length : Number(perPage);
@@ -195,6 +214,7 @@ export const useCatalogPage = (category: ProductCategory) => {
     perPage,
     safeCurrentPage,
     totalPages,
+    latestProductYear,
     categoryProducts,
     searchedProducts,
     visibleProducts,

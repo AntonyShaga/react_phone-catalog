@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 
 import { BackLink } from '../../components/BackLink';
@@ -35,6 +35,7 @@ export const ProductDetailsPage = () => {
   const favoriteItemIds = useAppSelector(state => state.favorites.itemIds);
 
   const [activeImage, setActiveImage] = useState('');
+  const previousItemId = useRef(itemId);
 
   const isValidCategory = isProductCategory(category);
   const productCategory: ProductCategory | null = isValidCategory
@@ -48,6 +49,19 @@ export const ProductDetailsPage = () => {
     isLoading,
     hasError,
   } = useProductDetailsData(productCategory);
+
+  useEffect(() => {
+    if (previousItemId.current === itemId) {
+      return;
+    }
+
+    previousItemId.current = itemId;
+
+    window.scrollTo({
+      top: 0,
+      behavior: 'smooth',
+    });
+  }, [itemId]);
 
   const product = useMemo(() => {
     if (!isValidCategory || loadedCategory !== category) {
@@ -83,17 +97,27 @@ export const ProductDetailsPage = () => {
     return products.find(item => item.itemId === itemId);
   }, [products, itemId]);
 
-  const suggestedProducts = useMemo(() => {
+  const categoryProducts = useMemo(() => {
     if (!isValidCategory) {
       return [];
     }
 
-    const categoryProducts = products.filter(item => {
-      return item.category === category;
-    });
+    return products.filter(item => item.category === category);
+  }, [products, category, isValidCategory]);
 
+  const latestProductYear = useMemo(() => {
+    if (categoryProducts.length === 0) {
+      return 0;
+    }
+
+    return Math.max(...categoryProducts.map(item => item.year));
+  }, [categoryProducts]);
+
+  const isBrandNewProduct = currentProductFromList?.year === latestProductYear;
+
+  const suggestedProducts = useMemo(() => {
     return getSuggestedProducts(categoryProducts, itemId);
-  }, [products, category, itemId, isValidCategory]);
+  }, [categoryProducts, itemId]);
 
   const isInCart = product
     ? cartItems.some(item => item.itemId === product.id)
@@ -266,7 +290,7 @@ export const ProductDetailsPage = () => {
         ]}
       />
 
-      <BackLink />
+      <BackLink to={`/${category}`} />
 
       <h1 className={styles.title}>{product.name}</h1>
 
@@ -280,6 +304,7 @@ export const ProductDetailsPage = () => {
         <ProductPurchasePanel
           product={product}
           productId={currentProductFromList?.id}
+          isBrandNew={isBrandNewProduct}
           isInCart={isInCart}
           isFavorite={isFavorite}
           onColorChange={handleColorChange}

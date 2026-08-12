@@ -10,6 +10,7 @@ import styles from '../../ProductDetailsPage.module.scss';
 type Props = {
   product: ProductDetailsFromServer;
   productId?: number;
+  isBrandNew?: boolean;
   isInCart: boolean;
   isFavorite: boolean;
   onColorChange: (color: string) => void;
@@ -21,6 +22,7 @@ type Props = {
 export const ProductPurchasePanel = ({
   product,
   productId,
+  isBrandNew = false,
   isInCart,
   isFavorite,
   onColorChange,
@@ -29,6 +31,12 @@ export const ProductPurchasePanel = ({
   onToggleFavorite,
 }: Props) => {
   const t = useTranslation();
+
+  const visiblePrice = isBrandNew
+    ? product.priceRegular
+    : product.priceDiscount;
+
+  const shouldShowRegularPrice = !isBrandNew;
 
   return (
     <div className={styles.info}>
@@ -91,9 +99,11 @@ export const ProductPurchasePanel = ({
       <div className={styles.divider} />
 
       <div className={styles.price}>
-        <span className={styles.priceDiscount}>${product.priceDiscount}</span>
+        <span className={styles.priceDiscount}>${visiblePrice}</span>
 
-        <span className={styles.priceRegular}>${product.priceRegular}</span>
+        {shouldShowRegularPrice && (
+          <span className={styles.priceRegular}>${product.priceRegular}</span>
+        )}
       </div>
 
       <div className={styles.actions}>

@@ -34,6 +34,14 @@ export const CatalogPage = ({ category }: Props) => {
     handlePageChange,
   } = useCatalogPage(category);
 
+  const latestProductYear = useMemo(() => {
+    if (categoryProducts.length === 0) {
+      return 0;
+    }
+
+    return Math.max(...categoryProducts.map(product => product.year));
+  }, [categoryProducts]);
+
   const title = useMemo(() => {
     switch (category) {
       case 'phones':
@@ -167,7 +175,11 @@ export const CatalogPage = ({ category }: Props) => {
           ) : (
             <div className={styles.grid}>
               {visibleProducts.map(product => (
-                <ProductCard product={product} key={product.itemId} />
+                <ProductCard
+                  product={product}
+                  isBrandNew={product.year === latestProductYear}
+                  key={product.itemId}
+                />
               ))}
             </div>
           )}

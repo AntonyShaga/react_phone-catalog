@@ -1,4 +1,4 @@
-import { useLayoutEffect, useRef } from 'react';
+import { useLayoutEffect, useMemo, useRef } from 'react';
 
 import { BackLink } from '../../components/BackLink';
 import { Button } from '../../components/Button';
@@ -29,7 +29,7 @@ export const CartPage = () => {
   const {
     preparedCartItems,
     totalQuantity,
-    totalPrice,
+    latestProductYearByCategory,
     skeletonCount,
     shouldShowLoader,
     shouldShowSkeletons,
@@ -37,6 +37,17 @@ export const CartPage = () => {
     shouldShowEmptyCart,
     shouldShowCart,
   } = useCartPage();
+
+  const cartTotalPrice = useMemo(() => {
+    return preparedCartItems.reduce((total, { product, quantity }) => {
+      const latestProductYear = latestProductYearByCategory[product.category];
+
+      const isBrandNew = product.year === latestProductYear;
+      const visiblePrice = isBrandNew ? product.fullPrice : product.price;
+
+      return total + visiblePrice * quantity;
+    }, 0);
+  }, [preparedCartItems, latestProductYearByCategory]);
 
   useLayoutEffect(() => {
     const nextPositions = new Map<string, DOMRect>();
@@ -152,25 +163,33 @@ export const CartPage = () => {
       {shouldShowCart && (
         <div className={styles.content}>
           <div className={styles.list}>
-            {preparedCartItems.map(({ product, quantity }) => (
-              <div
-                className={styles.listItem}
-                ref={setItemRef(product.itemId)}
-                key={product.itemId}
-              >
-                <CartItem
-                  product={product}
-                  quantity={quantity}
-                  onRemove={itemId => dispatch(removeFromCart(itemId))}
-                  onIncrease={itemId => dispatch(increaseQuantity(itemId))}
-                  onDecrease={itemId => dispatch(decreaseQuantity(itemId))}
-                />
-              </div>
-            ))}
+            {preparedCartItems.map(({ product, quantity }) => {
+              const latestProductYear =
+                latestProductYearByCategory[product.category];
+
+              const isBrandNew = product.year === latestProductYear;
+
+              return (
+                <div
+                  className={styles.listItem}
+                  ref={setItemRef(product.itemId)}
+                  key={product.itemId}
+                >
+                  <CartItem
+                    product={product}
+                    quantity={quantity}
+                    isBrandNew={isBrandNew}
+                    onRemove={itemId => dispatch(removeFromCart(itemId))}
+                    onIncrease={itemId => dispatch(increaseQuantity(itemId))}
+                    onDecrease={itemId => dispatch(decreaseQuantity(itemId))}
+                  />
+                </div>
+              );
+            })}
           </div>
 
           <aside className={styles.summary} aria-label={t.cart.summary}>
-            <strong className={styles.totalPrice}>${totalPrice}</strong>
+            <strong className={styles.totalPrice}>${cartTotalPrice}</strong>
 
             <p className={styles.totalQuantity}>
               {t.cart.totalFor} {totalQuantity}{' '}

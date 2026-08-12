@@ -30,6 +30,7 @@ export const FavoritesPage = () => {
   const {
     favoriteItemIds,
     searchedFavoriteProducts,
+    latestProductYearByCategory,
     skeletonCount,
     shouldShowLoader,
     shouldShowSkeletons,
@@ -179,6 +180,9 @@ export const FavoritesPage = () => {
   const favoriteItems = visibleProducts.map(product => {
     const isRemoving = removingItemIds.has(product.itemId);
 
+    const latestProductYear = latestProductYearByCategory[product.category];
+    const isBrandNew = product.year === latestProductYear;
+
     return (
       <div
         className={
@@ -189,7 +193,7 @@ export const FavoritesPage = () => {
         ref={setItemRef(product.itemId)}
         key={product.itemId}
       >
-        <ProductCard product={product} />
+        <ProductCard product={product} isBrandNew={isBrandNew} />
       </div>
     );
   });

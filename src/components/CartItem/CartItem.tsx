@@ -10,6 +10,7 @@ import styles from './CartItem.module.scss';
 type Props = {
   product: ProductFromServer;
   quantity: number;
+  isBrandNew?: boolean;
   onRemove: (itemId: string) => void;
   onIncrease: (itemId: string) => void;
   onDecrease: (itemId: string) => void;
@@ -20,6 +21,7 @@ const REMOVE_ANIMATION_DELAY = 250;
 export const CartItem = ({
   product,
   quantity,
+  isBrandNew = false,
   onRemove,
   onIncrease,
   onDecrease,
@@ -31,7 +33,9 @@ export const CartItem = ({
 
   const imageSrc = `${import.meta.env.BASE_URL}${product.image}`;
   const productLink = `/${product.category}/${product.itemId}`;
-  const totalPrice = product.price * quantity;
+
+  const visiblePrice = isBrandNew ? product.fullPrice : product.price;
+  const totalPrice = visiblePrice * quantity;
 
   const itemClassName = [styles.item, isRemoving && styles.itemRemoving]
     .filter(Boolean)

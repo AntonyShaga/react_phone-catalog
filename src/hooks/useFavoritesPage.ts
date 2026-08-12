@@ -1,7 +1,20 @@
 import { useMemo } from 'react';
 import { useSearchParams } from 'react-router-dom';
+
 import { useProducts } from './useProducts';
 import { useAppSelector } from '../store/hooks';
+import type { ProductCategory } from '../types/product';
+
+type LatestProductYearByCategory = Record<ProductCategory, number>;
+
+const getInitialLatestProductYearByCategory =
+  (): LatestProductYearByCategory => {
+    return {
+      phones: 0,
+      tablets: 0,
+      accessories: 0,
+    };
+  };
 
 export const useFavoritesPage = () => {
   const [searchParams] = useSearchParams();
@@ -10,6 +23,24 @@ export const useFavoritesPage = () => {
   const { products, isLoading, hasError } = useProducts();
 
   const query = searchParams.get('query')?.trim().toLowerCase() || '';
+
+  const latestProductYearByCategory = useMemo(() => {
+    return products.reduce<LatestProductYearByCategory>(
+      (yearsByCategory, product) => {
+        const currentLatestYear = yearsByCategory[product.category];
+
+        if (product.year > currentLatestYear) {
+          return {
+            ...yearsByCategory,
+            [product.category]: product.year,
+          };
+        }
+
+        return yearsByCategory;
+      },
+      getInitialLatestProductYearByCategory(),
+    );
+  }, [products]);
 
   const favoriteProducts = useMemo(() => {
     return products.filter(product => {
@@ -61,6 +92,7 @@ export const useFavoritesPage = () => {
   return {
     favoriteItemIds,
     searchedFavoriteProducts,
+    latestProductYearByCategory,
     skeletonCount,
     shouldShowLoader,
     shouldShowSkeletons,

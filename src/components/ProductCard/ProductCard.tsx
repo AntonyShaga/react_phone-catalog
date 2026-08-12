@@ -12,9 +12,10 @@ import styles from './ProductCard.module.scss';
 
 type Props = {
   product: ProductFromServer;
+  isBrandNew?: boolean;
 };
 
-export const ProductCard = ({ product }: Props) => {
+export const ProductCard = ({ product, isBrandNew = false }: Props) => {
   const dispatch = useAppDispatch();
   const t = useTranslation();
 
@@ -26,6 +27,10 @@ export const ProductCard = ({ product }: Props) => {
 
   const isInCart = cartItems.some(item => item.itemId === product.itemId);
   const isFavorite = favoriteItemIds.includes(product.itemId);
+
+  const visiblePrice = isBrandNew ? product.fullPrice : product.price;
+  const shouldShowRegularPrice =
+    !isBrandNew && product.fullPrice > product.price;
 
   const handleAddToCart = () => {
     if (!isInCart) {
@@ -52,8 +57,11 @@ export const ProductCard = ({ product }: Props) => {
       </Link>
 
       <div className={styles.price}>
-        <span className={styles.priceDiscount}>${product.price}</span>
-        <span className={styles.priceRegular}>${product.fullPrice}</span>
+        <span className={styles.priceDiscount}>${visiblePrice}</span>
+
+        {shouldShowRegularPrice && (
+          <span className={styles.priceRegular}>${product.fullPrice}</span>
+        )}
       </div>
 
       <div className={styles.divider} />

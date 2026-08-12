@@ -12,14 +12,26 @@ export const HomePage = () => {
 
   const { products, isLoading, hasError } = useProducts();
 
-  const brandNewProducts = useMemo(() => {
-    return [...products]
-      .sort((productA, productB) => productB.year - productA.year)
-      .slice(0, 10);
+  const latestProductYear = useMemo(() => {
+    if (products.length === 0) {
+      return 0;
+    }
+
+    return Math.max(...products.map(product => product.year));
   }, [products]);
 
+  const brandNewProducts = useMemo(() => {
+    return products
+      .filter(product => product.year === latestProductYear)
+      .sort((productA, productB) => {
+        return productB.fullPrice - productA.fullPrice;
+      })
+      .slice(0, 10);
+  }, [products, latestProductYear]);
+
   const hotPriceProducts = useMemo(() => {
-    return [...products]
+    return products
+      .filter(product => product.year !== latestProductYear)
       .sort((productA, productB) => {
         const discountA = productA.fullPrice - productA.price;
         const discountB = productB.fullPrice - productB.price;
@@ -27,7 +39,7 @@ export const HomePage = () => {
         return discountB - discountA;
       })
       .slice(0, 10);
-  }, [products]);
+  }, [products, latestProductYear]);
 
   return (
     <div className={styles.homePage}>
@@ -50,6 +62,7 @@ export const HomePage = () => {
             title={t.home.brandNew}
             products={brandNewProducts}
             isLoading={isLoading}
+            isBrandNewSection
           />
 
           <ShopByCategory products={products} />
